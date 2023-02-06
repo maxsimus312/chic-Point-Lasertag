@@ -1,0 +1,302 @@
+
+
+
+ #include <Adafruit_NeoPixel.h>
+ #ifdef __AVR__
+#include <avr/power.h>
+ #endif
+ long Pixcil = 0;
+ long NeoPix = 0;
+ // 
+
+Adafruit_NeoPixel pixels_13 = Adafruit_NeoPixel(90, 13, NEO_GRB + NEO_KHZ800);
+
+ Adafruit_NeoPixel strip13(90, 13, NEO_GRB + NEO_KHZ800);
+  
+  #define LED_R 2
+  #define EEPROM_ADDR 0
+  #define LED_G 4
+  #define LED_B 5
+  #define ZUMMER 6
+  #define LED_OFF 8
+  #define BUTTON 9
+  #include <IRremote.h>
+  boolean zummer_on = false;
+      int count_shot = 60;
+      int ledIndex_R;
+      int ledIndex_G;
+      int ledIndex_B;
+              int shot_redTeam = 0;
+              int shot_greenTeam = 0;
+              int shot_blueTeam = 0;
+              int shot_yelowTeam = 0;
+  long led_column_1;
+  int remainder = count_shot/30;
+  int countZummer = 0;
+                
+boolean shot = 0;      
+
+int IR_RECEIVE_PIN = 11;
+IRrecv irrecv(IR_RECEIVE_PIN);
+
+decode_results results;
+
+void setup() {
+    
+    pixels_13.begin();
+
+      strip13.begin();
+  strip13.show();
+  strip13.setBrightness(50);
+    
+  pinMode(LED_R, OUTPUT);
+  pinMode(LED_G, OUTPUT);
+  pinMode(LED_B, OUTPUT);
+    pinMode(13, OUTPUT);
+    Serial.begin(115200);
+    irrecv.enableIRIn(); // Start the receiver
+    Serial.println(IR_RECEIVE_PIN);
+}
+
+
+
+
+boolean flag_2 = false;
+void loop() {
+
+  if(!shot){
+    led_column_1 =  random(29);
+   long led_column_2 =  random(30,59);
+    long led_column_3 =  random(60,89); 
+
+   pixels_13.setBrightness(255);
+   pixels_13.setPixelColor(led_column_1-1, pixels_13.Color(0,0,255));
+   pixels_13.show();
+    pixels_13.setBrightness(255);
+   pixels_13.setPixelColor(led_column_1-1, pixels_13.Color(0,0,255));
+   pixels_13.show();
+   delay(70); 
+   pixels_13.setBrightness(255);
+   pixels_13.setPixelColor(led_column_1-1, pixels_13.Color(0,0,0));
+   pixels_13.show();
+    pixels_13.setBrightness(255);
+   pixels_13.setPixelColor(led_column_2-1, pixels_13.Color(0,0,255));
+   pixels_13.show();
+    pixels_13.setBrightness(255);
+   pixels_13.setPixelColor(led_column_2-1, pixels_13.Color(0,0,255));
+   pixels_13.show();
+   delay(70); 
+   pixels_13.setBrightness(255);
+   pixels_13.setPixelColor(led_column_2-1, pixels_13.Color(0,0,0));
+   pixels_13.show();
+    pixels_13.setBrightness(255);
+   pixels_13.setPixelColor(led_column_3-1, pixels_13.Color(0,0,255));
+   pixels_13.show();
+    pixels_13.setBrightness(255);
+   pixels_13.setPixelColor(led_column_3-1, pixels_13.Color(0,0,255));
+   pixels_13.show();
+   delay(70); 
+   pixels_13.setBrightness(255);
+   pixels_13.setPixelColor(led_column_3-1, pixels_13.Color(0,0,0));
+   pixels_13.show();}    
+    
+  
+ if (irrecv.decode(&results)) {
+   shot = true;
+
+   
+       
+        Serial.println(results.value, HEX);
+
+        irrecv.resume(); // Receive the next value
+    
+    uint32_t a = results.value;
+          if(bitRead(a,4) == 0 && bitRead(a,5) == 0  && a < 0xFFFF){
+           // finifh(255,0,0,2);                                        // Red
+          shot_redTeam++; 
+          int pixelsLight;
+        if(shot_redTeam == 1)
+        pixelsLight = 1;
+        if((shot_redTeam % remainder == 0) && shot_redTeam != 1 && ((shot_redTeam / remainder) % 2 == 0))
+      pixelsLight = shot_redTeam / remainder;
+      
+      for(int i = 0; i < pixelsLight; i++ ){
+        if(i % 2 == 0){       
+           pixels_13.setBrightness(255);
+   pixels_13.setPixelColor(i, pixels_13.Color(255,0,0)); // 1colomn
+   pixels_13.show();
+   pixels_13.setBrightness(255);
+   pixels_13.setPixelColor(i+30, pixels_13.Color(255,0,0)); // 1colomn
+   pixels_13.show();
+   pixels_13.setBrightness(255);
+   pixels_13.setPixelColor(i+60, pixels_13.Color(255,0,0)); // 1colomn
+   pixels_13.show();
+    pixels_13.setBrightness(255);
+   }
+     
+   
+   Serial.println(shot_redTeam);  
+Serial.println(pixelsLight);     
+   
+  //           pixels_13.setBrightness(255);   
+  //  pixels_13.setPixelColor(shot_redTeam + 29, pixels_13.Color(255,0,0)); // 2colomn
+  //  pixels_13.show();
+  //           pixels_13.setBrightness(255);
+  //  pixels_13.setPixelColor(shot_redTeam + 59, pixels_13.Color(255,0,0));  // 3colomn
+  //  pixels_13.show();
+           
+
+          }}
+           else if(bitRead(a,4) == 1 && bitRead(a,5) == 0 && a < 0xFFFF){   // Blue
+            //finifh(0,0,255);
+            int pixelsLight;
+            shot_blueTeam++;
+        if(shot_blueTeam == 1)
+        pixelsLight = 1;
+        if((shot_blueTeam % remainder == 0) && shot_blueTeam != 1 && ((shot_blueTeam / remainder) % 2 == 0))
+      pixelsLight = shot_blueTeam / remainder;
+for(int i = 0; i < pixelsLight; i++){
+        if(i % 2 == 0 || i == 1){       
+           pixels_13.setBrightness(255);
+   pixels_13.setPixelColor(i, pixels_13.Color(0,0,255)); // 1colomn
+   pixels_13.show();
+   pixels_13.setBrightness(255);
+   pixels_13.setPixelColor(i+30, pixels_13.Color(0,0,255)); // 1colomn
+   pixels_13.show();
+   pixels_13.setBrightness(255);
+   pixels_13.setPixelColor(i+60, pixels_13.Color(0,0,255)); // 1colomn
+   pixels_13.show();
+   }
+ } }
+           else if(bitRead(a,4) == 0 && bitRead(a,5) == 1 && a < 0xFFFF)     // Yelow
+            { 
+              //finifh(255,255,0);
+              shot_yelowTeam++;
+              int pixelsLight;
+        if(shot_yelowTeam == 1)
+        pixelsLight = 1;
+        if((shot_yelowTeam % remainder == 0) && shot_yelowTeam != 1 && ((shot_yelowTeam / remainder) % 2 == 0))
+      pixelsLight= shot_yelowTeam / remainder;
+        for(int i = 0; i < pixelsLight; i++ ){
+        if(i % 2 == 0 || i == 1){       
+          pixels_13.setBrightness(255);
+   pixels_13.setPixelColor(i, pixels_13.Color(255,255,0)); // 1colomn
+   pixels_13.show();
+   pixels_13.setBrightness(255);
+   pixels_13.setPixelColor(i+30, pixels_13.Color(255,255,0)); // 1colomn
+   pixels_13.show();
+   pixels_13.setBrightness(255);
+   pixels_13.setPixelColor(i+60, pixels_13.Color(255,255,0)); // 1colomn
+   pixels_13.show();
+   }
+            }} 
+            else if(bitRead(a,4) == 1 && bitRead(a,5) == 1 && a < 0xFFFF){ //Green
+             // finifh(0,255,0);
+              shot_greenTeam++;
+              int pixelsLight;
+        if(shot_greenTeam == 1)
+        pixelsLight = 1;
+        if((shot_greenTeam % remainder == 0) && shot_greenTeam != 1 && ((shot_greenTeam / remainder) % 2 == 0))
+        pixelsLight= shot_greenTeam / remainder;
+for(int i = 0; i < pixelsLight; i++ ){  
+        if(i % 2 == 0 || i == 1){       
+   pixels_13.setBrightness(255);
+   pixels_13.setPixelColor(i, pixels_13.Color(0,255,0)); // 1colomn
+   pixels_13.show();
+   pixels_13.setBrightness(255);
+   pixels_13.setPixelColor(i+30, pixels_13.Color(0,255,0)); // 1colomn
+   pixels_13.show();
+   pixels_13.setBrightness(255);
+   pixels_13.setPixelColor(i+60, pixels_13.Color(0,255,0)); // 1colomn
+   pixels_13.show();
+   }     
+        }}
+  
+            digitalWrite(LED_R, LOW);
+            digitalWrite(LED_G, LOW);
+            digitalWrite(LED_B, LOW);
+            results.value = 0;
+
+              if(a == 0x8305E8){
+              shot = false;
+              shot_redTeam = 0;
+              shot_greenTeam = 0;
+              shot_blueTeam = 0;
+              shot_yelowTeam = 0;
+              countZummer = 0;
+                           }}
+
+            if(shot_redTeam > count_shot || shot_greenTeam > count_shot || shot_blueTeam > count_shot || shot_yelowTeam > count_shot){
+              int r;
+              int g;
+              int b; 
+              if(shot_redTeam > count_shot)
+              {  r = 255;
+                g = 0;
+                b = 0;}
+           else if(shot_greenTeam > count_shot)
+              {r = 0;
+              g = 255;
+              b = 0;  } 
+            else if(shot_blueTeam > count_shot){
+              r = 0;
+              g = 0;
+              b = 255;
+            }         
+            else if(shot_yelowTeam > count_shot){
+              r = 255;
+              g = 255;
+              b = 0;
+            }                           
+             finifh(r, g, b, 120);}
+             
+            
+
+// pixels_13.setBrightness(255);
+//    pixels_13.setPixelColor(t-1, pixels_13.Color(0,0,0));
+//    pixels_13.show();
+    
+  //  Serial.println(); 
+  //  Serial.println("GREEN_TEAM = " + shot_greenTeam);
+  //  Serial.println("YELOW_TEAM = " + shot_yelowTeam);  
+         
+} 
+  uint64_t timmer = 0;
+void finifh(int r, int g, int b, int time){
+      if(millis() - timmer >= 100){
+     for(int i = 0; i < 30; i = i+2){
+    if(millis() - timmer >= time){             
+  pixels_13.setBrightness(100);
+   pixels_13.setPixelColor(i, pixels_13.Color(r,g,b));
+   pixels_13.show();
+   pixels_13.setBrightness(100);
+   pixels_13.setPixelColor(i+30, pixels_13.Color(r,g,b));
+   pixels_13.show();
+   pixels_13.setBrightness(100);
+   pixels_13.setPixelColor(i+60, pixels_13.Color(r,g,b));
+   pixels_13.show();
+    }}
+  
+   
+   if(millis() - timmer > time + random(10,60)){
+   pixels_13.setBrightness(0);
+   pixels_13.setPixelColor(1-1, pixels_13.Color(r,g,b));
+   pixels_13.show();
+   pixels_13.setBrightness(0);
+   pixels_13.setPixelColor(1+30, pixels_13.Color(r,g,b));
+   pixels_13.show();
+   pixels_13.setBrightness(0);
+   pixels_13.setPixelColor(1+60, pixels_13.Color(r,g,b));
+   pixels_13.show();
+   timmer = millis();
+   
+}
+if(countZummer < 12){
+digitalWrite(ZUMMER, HIGH);
+countZummer++;  }
+else
+digitalWrite(ZUMMER, LOW);}
+  
+}
+
+
